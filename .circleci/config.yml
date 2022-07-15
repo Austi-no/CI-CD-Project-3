@@ -1,5 +1,42 @@
 version: 2.1
 
+commands:
+  destroy-environment:
+    description: Destroy frontend and backendcloudformation stacks as well as delete s3 bucket files
+    steps:
+      - run:
+          name: Install AWS CLI
+          when: on_fail
+          command: |
+            if ! [ -x "$(command -v aws)" ]; then
+            pip install awscli
+            else
+            echo "AWS CLI already installed"
+            fi
+      - run:
+          name: Remove S3 files
+          when: on_fail
+          command: |
+            aws s3 rm s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7} \
+            --recursive
+      - run:
+          name: Delete S3 bucket
+          when: on_fail
+          command: |
+            aws s3 rb s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7} \
+            --force
+      - run:
+          name: Delete frontend stack
+          when: on_fail
+          command: |
+            aws cloudformation delete-stack \
+            --stack-name udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7}
+      - run:
+          name: Delete backend stack
+          when: on_fail
+          command: |
+            aws cloudformation delete-stack \
+            --stack-name udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}
 
 jobs:
   build-frontend:
@@ -141,7 +178,6 @@ jobs:
           paths:
             - inventory.txt
             - IP.txt
-      - revert-migrations
       - destroy-environment
 
 workflows:
