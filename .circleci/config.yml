@@ -180,6 +180,33 @@ jobs:
             - IP.txt
       - destroy-environment
 
+  configure-infrastructure:
+    docker:
+      - image: "python:3.7-alpine3.11"
+    steps:
+      - checkout
+      - add_ssh_keys:
+          fingerprints: ["98:3e:b6:15:98:a2:09:35:95:c8:86:4a:64:ef:6b:be"]
+      - attach_workspace:
+          at: .circleci/ansible/
+      - run:
+          name: Install dependencies
+          command: |
+            apk add --update ansible
+            apk add --update tar
+            apk add --update gzip
+            apk add curl
+            apk add --upgrade bash
+            pip3 install awscli
+            apk add openssh-client
+ 
+      - run:
+          name: Configure server
+          command: |
+            ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -i ./.circleci/ansible/inventory.txt ./.circleci/ansible/configure-server.yml
+
+      - destroy-environment
+
 workflows:
   default:
     jobs:
@@ -199,3 +226,5 @@ workflows:
             branches:
               only:
                 - master
+      - configure-infrastructure:
+          requires: [deploy-infrastructure]
