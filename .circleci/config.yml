@@ -224,7 +224,7 @@ jobs:
       - revert-migrations
       - destroy-environment
 
-run-migrations:
+  run-migrations:
     docker:
       - image: circleci/node:13.8.0
     steps:
