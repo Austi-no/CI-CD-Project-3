@@ -330,45 +330,45 @@ jobs:
       - revert-migrations
       - destroy-environment 
 
-  # smoke-test:
-  #   docker:
-  #     - image: "python:3.7-alpine3.11"
-  #   steps:
-  #     - checkout
-  #     - attach_workspace:
-  #         at: .circleci/ansible/
-  #     - run:
-  #         name: Install dependencies
-  #         command: |
-  #           apk add --update tar
-  #           apk add --update gzip
-  #           apk add --update curl
-  #     - run:
-  #         name: Get Backend IP and Backend smoke test.
-  #         command: |
-  #           backendIP=`cat ./.circleci/ansible/IP.txt`
-  #           echo $backendIP
-  #           sleep 20
-  #           URL="http://$backendIP:3030/api/status"
-  #           echo $URL
-  #           curl -s $URL
-  #     - run:
-  #         name: Frontend smoke test.
-  #         command: |
-  #           echo ${CIRCLE_WORKFLOW_ID:0:7}
-  #           echo ${CIRCLE_WORKFLOW_ID:0:7}
-  #           URL="http://udapeople-${CIRCLE_WORKFLOW_ID:0:7}.s3-website.us-east-1.amazonaws.com/#/employees"            
-  #           curl -s http://udapeople-${CIRCLE_WORKFLOW_ID:0:7}.s3-website.us-east-1.amazonaws.com/#/employees | grep "Welcome"
-  #           echo ${URL} 
-  #           if curl -s http://udapeople-${CIRCLE_WORKFLOW_ID:0:7}.s3-website.us-east-1.amazonaws.com/#/employees | grep "Welcome"
-  #           then
-  #               # Change this to 0 after the job fails
-  #             return 0
-  #           else
-  #             return 1
-  #           fi
-  #     - revert-migrations
-  #     - destroy-environment   
+  smoke-test:
+    docker:
+      - image: "python:3.7-alpine3.11"
+    steps:
+      - checkout
+      - attach_workspace:
+          at: .circleci/ansible/
+      - run:
+          name: Install dependencies
+          command: |
+            apk add --update tar
+            apk add --update gzip
+            apk add --update curl
+      - run:
+          name: Get Backend IP and Backend smoke test.
+          command: |
+            backendIP=`cat ./.circleci/ansible/IP.txt`
+            echo $backendIP
+            sleep 20
+            URL="http://$backendIP:3030/api/status"
+            echo $URL
+            curl -s $URL
+      - run:
+          name: Frontend smoke test.
+          command: |
+            echo ${CIRCLE_WORKFLOW_ID:0:7}
+            echo ${CIRCLE_WORKFLOW_ID:0:7}
+            URL="http://udapeople-${CIRCLE_WORKFLOW_ID:0:7}.s3-website.us-east-1.amazonaws.com/#/employees"            
+            curl -s http://udapeople-${CIRCLE_WORKFLOW_ID:0:7}.s3-website.us-east-1.amazonaws.com/#/employees | grep "Welcome"
+            echo ${URL} 
+            if curl -s http://udapeople-${CIRCLE_WORKFLOW_ID:0:7}.s3-website.us-east-1.amazonaws.com/#/employees | grep "Welcome"
+            then
+                # Change this to 0 after the job fails
+              return 0
+            else
+              return 1
+            fi
+      - revert-migrations
+      - destroy-environment   
 
 
 
@@ -399,5 +399,5 @@ workflows:
           requires: [run-migrations]
       - deploy-backend:
           requires: [run-migrations]
-      # - smoke-test:
-      #     requires: [deploy-backend, deploy-frontend]
+      - smoke-test:
+          requires: [deploy-backend, deploy-frontend]
